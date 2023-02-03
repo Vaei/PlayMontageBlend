@@ -17,31 +17,37 @@
  UPlayMontageBlendSettingsCallbackProxy* UPlayMontageBlendSettingsCallbackProxy::CreateProxyObjectForPlayMontage(
  	class USkeletalMeshComponent* InSkeletalMeshComponent,
  	class UAnimMontage* MontageToPlay,
- 	FMontageBlendSettings BlendSettings,
+ 	FMontageBlendSettings BlendIn,
+ 	FAlphaBlend BlendOut,
  	float PlayRate,
  	float StartingPosition,
  	FName StartingSection)
  {
  	UPlayMontageBlendSettingsCallbackProxy* Proxy = NewObject<UPlayMontageBlendSettingsCallbackProxy>();
  	Proxy->SetFlags(RF_StrongRefOnFrame);
- 	Proxy->PlayMontage(InSkeletalMeshComponent, MontageToPlay, BlendSettings, PlayRate, StartingPosition, StartingSection);
+ 	Proxy->PlayMontage(InSkeletalMeshComponent, MontageToPlay, BlendIn, BlendOut, PlayRate, StartingPosition, StartingSection);
  	return Proxy;
  }
 
 
- void UPlayMontageBlendSettingsCallbackProxy::PlayMontage(class USkeletalMeshComponent* InSkeletalMeshComponent, 
- 	class UAnimMontage* MontageToPlay,
- 	FMontageBlendSettings BlendSettings,
- 	float PlayRate,
- 	float StartingPosition,
- 	FName StartingSection)
+ void UPlayMontageBlendSettingsCallbackProxy::PlayMontage(
+ 	const class USkeletalMeshComponent* InSkeletalMeshComponent, 
+	class UAnimMontage* MontageToPlay,
+	FMontageBlendSettings BlendIn,
+	FAlphaBlend BlendOut,
+	float PlayRate,
+	float StartingPosition,
+	FName StartingSection)
  {
  	bool bPlayedSuccessfully = false;
  	if (InSkeletalMeshComponent)
  	{
  		if (UAnimInstance* AnimInstance = InSkeletalMeshComponent->GetAnimInstance())
  		{
- 			const float MontageLength = AnimInstance->Montage_PlayWithBlendSettings(MontageToPlay, BlendSettings, PlayRate, EMontagePlayReturnType::MontageLength, StartingPosition);
+ 			PrevMontage = MontageToPlay;
+ 			PrevBlendOut = MontageToPlay->BlendOut;
+ 			MontageToPlay->BlendOut = BlendOut;
+ 			const float MontageLength = AnimInstance->Montage_PlayWithBlendSettings(MontageToPlay, BlendIn, PlayRate, EMontagePlayReturnType::MontageLength, StartingPosition);
  			bPlayedSuccessfully = (MontageLength > 0.f);
 
  			if (bPlayedSuccessfully)
@@ -123,6 +129,8 @@
  		OnInterrupted.Broadcast(NAME_None);
  	}
 
+ 	RestorePrevMontage();
+ 	
  	UnbindDelegates();
  }
 
@@ -138,6 +146,8 @@
  void UPlayMontageBlendSettingsCallbackProxy::BeginDestroy()
  {
  	UnbindDelegates();
+
+ 	RestorePrevMontage();
 
  	Super::BeginDestroy();
  }

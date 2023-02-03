@@ -32,12 +32,16 @@ class UPlayMontageBlendSettingsCallbackProxy : public UObject
 	UPROPERTY(BlueprintAssignable)
 	FOnMontageBlendPlayDelegate OnNotifyEnd;
 
+	UPROPERTY(BlueprintAssignable)
+	FOnMontageBlendPlayDelegate OnTaskComplete;
+
 	// Called to perform the query internally
 	UFUNCTION(BlueprintCallable, meta = (BlueprintInternalUseOnly = "true"))
 	static UPlayMontageBlendSettingsCallbackProxy* CreateProxyObjectForPlayMontage(
 		class USkeletalMeshComponent* InSkeletalMeshComponent,
 		class UAnimMontage* MontageToPlay,
-		FMontageBlendSettings BlendSettings,
+		FMontageBlendSettings BlendIn,
+		FAlphaBlend BlendOut,
 		float PlayRate = 1.f,
 		float StartingPosition = 0.f,
 		FName StartingSection = NAME_None);
@@ -46,6 +50,11 @@ public:
 	//~ Begin UObject Interface
 	virtual void BeginDestroy() override;
 	//~ End UObject Interface
+
+	virtual ~UPlayMontageBlendSettingsCallbackProxy() override
+	{
+		RestorePrevMontage();
+	}
 
 protected:
 	UFUNCTION()
@@ -71,10 +80,26 @@ private:
 	FOnMontageBlendingOutStarted BlendingOutDelegate;
 	FOnMontageEnded MontageEndedDelegate;
 
+	// Restore the previous montage settings, otherwise they don't recover until editor restart
+	// Unfortunately none of the UAnimInstance Montage_Play functions take blend out settings so
+	// this is a bit of a hack
+	TWeakObjectPtr<UAnimMontage> PrevMontage;
+	FAlphaBlend PrevBlendOut;
+	FTimerHandle PrevMontageTimerHandle;
+	void RestorePrevMontage()
+	{
+		if (PrevMontage.IsValid())
+		{
+			PrevMontage->BlendOut = PrevBlendOut;
+			PrevMontage.Reset();
+		}
+	}
+
 	void PlayMontage(
-		class USkeletalMeshComponent* InSkeletalMeshComponent,
+		const class USkeletalMeshComponent* InSkeletalMeshComponent,
 		class UAnimMontage* MontageToPlay,
-		FMontageBlendSettings BlendSettings,
+		FMontageBlendSettings BlendIn,
+		FAlphaBlend BlendOut,
 		float PlayRate = 1.f,
 		float StartingPosition = 0.f,
 		FName StartingSection = NAME_None);
