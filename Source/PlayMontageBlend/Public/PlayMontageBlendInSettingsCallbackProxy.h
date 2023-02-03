@@ -5,40 +5,39 @@
 #include "CoreMinimal.h"
 #include "UObject/Object.h"
 #include "Animation/AnimInstance.h"
-#include "PlayMontageBlendSettingsCallbackProxy.generated.h"
+#include "PlayMontageBlendInSettingsCallbackProxy.generated.h"
 
-DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(FOnMontageBlendPlayDelegate, FName, NotifyName);
+DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(FOnMontageBlendInPlayDelegate, FName, NotifyName);
 
 UCLASS(MinimalAPI)
-class UPlayMontageBlendSettingsCallbackProxy : public UObject
+class UPlayMontageBlendInSettingsCallbackProxy : public UObject
 {
 	GENERATED_UCLASS_BODY()
 
 	// Called when Montage finished playing and wasn't interrupted
 	UPROPERTY(BlueprintAssignable)
-	FOnMontageBlendPlayDelegate OnCompleted;
+	FOnMontageBlendInPlayDelegate OnCompleted;
 
 	// Called when Montage starts blending out and is not interrupted
 	UPROPERTY(BlueprintAssignable)
-	FOnMontageBlendPlayDelegate OnBlendOut;
+	FOnMontageBlendInPlayDelegate OnBlendOut;
 
 	// Called when Montage has been interrupted (or failed to play)
 	UPROPERTY(BlueprintAssignable)
-	FOnMontageBlendPlayDelegate OnInterrupted;
+	FOnMontageBlendInPlayDelegate OnInterrupted;
 
 	UPROPERTY(BlueprintAssignable)
-	FOnMontageBlendPlayDelegate OnNotifyBegin;
+	FOnMontageBlendInPlayDelegate OnNotifyBegin;
 
 	UPROPERTY(BlueprintAssignable)
-	FOnMontageBlendPlayDelegate OnNotifyEnd;
+	FOnMontageBlendInPlayDelegate OnNotifyEnd;
 
 	// Called to perform the query internally
 	UFUNCTION(BlueprintCallable, meta = (BlueprintInternalUseOnly = "true"))
-	static UPlayMontageBlendSettingsCallbackProxy* CreateProxyObjectForPlayMontage(
+	static UPlayMontageBlendInSettingsCallbackProxy* CreateProxyObjectForPlayMontage(
 		class USkeletalMeshComponent* InSkeletalMeshComponent,
 		class UAnimMontage* MontageToPlay,
 		FMontageBlendSettings BlendIn,
-		float BlendOut,
 		float PlayRate = 1.f,
 		float StartingPosition = 0.f,
 		FName StartingSection = NAME_None);
@@ -72,26 +71,10 @@ private:
 	FOnMontageBlendingOutStarted BlendingOutDelegate;
 	FOnMontageEnded MontageEndedDelegate;
 
-	// Restore the previous montage settings, otherwise they don't recover until editor restart
-	// Unfortunately none of the UAnimInstance Montage_Play functions take blend out settings so
-	// this is a bit of a hack
-	TWeakObjectPtr<UAnimMontage> PrevMontage;
-	FAlphaBlend PrevBlendOut;
-	FTimerHandle PrevMontageTimerHandle;
-	void RestorePrevMontage()
-	{
-		if (PrevMontage.IsValid())
-		{
-			PrevMontage->BlendOut = PrevBlendOut;
-			PrevMontage.Reset();
-		}
-	}
-
 	void PlayMontage(
 		const class USkeletalMeshComponent* InSkeletalMeshComponent,
 		class UAnimMontage* MontageToPlay,
 		FMontageBlendSettings BlendIn,
-		float BlendOut,
 		float PlayRate = 1.f,
 		float StartingPosition = 0.f,
 		FName StartingSection = NAME_None);

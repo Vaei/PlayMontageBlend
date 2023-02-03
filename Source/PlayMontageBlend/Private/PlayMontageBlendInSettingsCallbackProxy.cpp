@@ -1,40 +1,38 @@
 // Copyright Epic Games, Inc. All Rights Reserved.
 
-#include "PlayMontageBlendSettingsCallbackProxy.h"
+#include "PlayMontageBlendInSettingsCallbackProxy.h"
 
-#include UE_INLINE_GENERATED_CPP_BY_NAME(PlayMontageBlendSettingsCallbackProxy)
+#include UE_INLINE_GENERATED_CPP_BY_NAME(PlayMontageBlendInSettingsCallbackProxy)
 
 ////////////////////////////////////////////////////////////////////////
 // UPlayMontageTransposedCallbackProxy
 
- UPlayMontageBlendSettingsCallbackProxy::UPlayMontageBlendSettingsCallbackProxy(const FObjectInitializer& ObjectInitializer)
+ UPlayMontageBlendInSettingsCallbackProxy::UPlayMontageBlendInSettingsCallbackProxy(const FObjectInitializer& ObjectInitializer)
  	: Super(ObjectInitializer)
  	, MontageInstanceID(INDEX_NONE)
  	, bInterruptedCalledBeforeBlendingOut(false)
  {
  }
 
- UPlayMontageBlendSettingsCallbackProxy* UPlayMontageBlendSettingsCallbackProxy::CreateProxyObjectForPlayMontage(
+ UPlayMontageBlendInSettingsCallbackProxy* UPlayMontageBlendInSettingsCallbackProxy::CreateProxyObjectForPlayMontage(
  	class USkeletalMeshComponent* InSkeletalMeshComponent,
  	class UAnimMontage* MontageToPlay,
  	FMontageBlendSettings BlendIn,
- 	float BlendOut,
  	float PlayRate,
  	float StartingPosition,
  	FName StartingSection)
  {
- 	UPlayMontageBlendSettingsCallbackProxy* Proxy = NewObject<UPlayMontageBlendSettingsCallbackProxy>();
+ 	UPlayMontageBlendInSettingsCallbackProxy* Proxy = NewObject<UPlayMontageBlendInSettingsCallbackProxy>();
  	Proxy->SetFlags(RF_StrongRefOnFrame);
- 	Proxy->PlayMontage(InSkeletalMeshComponent, MontageToPlay, BlendIn, BlendOut, PlayRate, StartingPosition, StartingSection);
+ 	Proxy->PlayMontage(InSkeletalMeshComponent, MontageToPlay, BlendIn, PlayRate, StartingPosition, StartingSection);
  	return Proxy;
  }
 
 
- void UPlayMontageBlendSettingsCallbackProxy::PlayMontage(
+ void UPlayMontageBlendInSettingsCallbackProxy::PlayMontage(
  	const class USkeletalMeshComponent* InSkeletalMeshComponent, 
 	class UAnimMontage* MontageToPlay,
 	FMontageBlendSettings BlendIn,
-	float BlendOut,
 	float PlayRate,
 	float StartingPosition,
 	FName StartingSection)
@@ -44,11 +42,6 @@
  	{
  		if (UAnimInstance* AnimInstance = InSkeletalMeshComponent->GetAnimInstance())
  		{
- 			PrevMontage = MontageToPlay;
- 			PrevBlendOut = MontageToPlay->BlendOut;
- 			MontageToPlay->BlendOut = BlendOut;
- 			MontageToPlay->BlendOut.SetDesiredValue(BlendOut);
- 			MontageToPlay->BlendOut.SetAlpha(0.f);
  			const float MontageLength = AnimInstance->Montage_PlayWithBlendSettings(MontageToPlay, BlendIn, PlayRate, EMontagePlayReturnType::MontageLength, StartingPosition);
  			bPlayedSuccessfully = (MontageLength > 0.f);
 
@@ -65,14 +58,14 @@
  					AnimInstance->Montage_JumpToSection(StartingSection, MontageToPlay);
  				}
 
- 				BlendingOutDelegate.BindUObject(this, &UPlayMontageBlendSettingsCallbackProxy::OnMontageBlendingOut);
+ 				BlendingOutDelegate.BindUObject(this, &UPlayMontageBlendInSettingsCallbackProxy::OnMontageBlendingOut);
  				AnimInstance->Montage_SetBlendingOutDelegate(BlendingOutDelegate, MontageToPlay);
 
- 				MontageEndedDelegate.BindUObject(this, &UPlayMontageBlendSettingsCallbackProxy::OnMontageEnded);
+ 				MontageEndedDelegate.BindUObject(this, &UPlayMontageBlendInSettingsCallbackProxy::OnMontageEnded);
  				AnimInstance->Montage_SetEndDelegate(MontageEndedDelegate, MontageToPlay);
 
- 				AnimInstance->OnPlayMontageNotifyBegin.AddDynamic(this, &UPlayMontageBlendSettingsCallbackProxy::OnNotifyBeginReceived);
- 				AnimInstance->OnPlayMontageNotifyEnd.AddDynamic(this, &UPlayMontageBlendSettingsCallbackProxy::OnNotifyEndReceived);
+ 				AnimInstance->OnPlayMontageNotifyBegin.AddDynamic(this, &UPlayMontageBlendInSettingsCallbackProxy::OnNotifyBeginReceived);
+ 				AnimInstance->OnPlayMontageNotifyEnd.AddDynamic(this, &UPlayMontageBlendInSettingsCallbackProxy::OnNotifyEndReceived);
  			}
  		}
  	}
@@ -83,13 +76,13 @@
  	}
  }
 
- bool UPlayMontageBlendSettingsCallbackProxy::IsNotifyValid(FName NotifyName, const FBranchingPointNotifyPayload& BranchingPointNotifyPayload) const
+ bool UPlayMontageBlendInSettingsCallbackProxy::IsNotifyValid(FName NotifyName, const FBranchingPointNotifyPayload& BranchingPointNotifyPayload) const
  {
  	return ((MontageInstanceID != INDEX_NONE) && (BranchingPointNotifyPayload.MontageInstanceID == MontageInstanceID));
  }
 
 
- void UPlayMontageBlendSettingsCallbackProxy::OnNotifyBeginReceived(FName NotifyName, const FBranchingPointNotifyPayload& BranchingPointNotifyPayload)
+ void UPlayMontageBlendInSettingsCallbackProxy::OnNotifyBeginReceived(FName NotifyName, const FBranchingPointNotifyPayload& BranchingPointNotifyPayload)
  {
  	if (IsNotifyValid(NotifyName, BranchingPointNotifyPayload))
  	{
@@ -98,7 +91,7 @@
  }
 
 
- void UPlayMontageBlendSettingsCallbackProxy::OnNotifyEndReceived(FName NotifyName, const FBranchingPointNotifyPayload& BranchingPointNotifyPayload)
+ void UPlayMontageBlendInSettingsCallbackProxy::OnNotifyEndReceived(FName NotifyName, const FBranchingPointNotifyPayload& BranchingPointNotifyPayload)
  {
  	if (IsNotifyValid(NotifyName, BranchingPointNotifyPayload))
  	{
@@ -107,7 +100,7 @@
  }
 
 
- void UPlayMontageBlendSettingsCallbackProxy::OnMontageBlendingOut(UAnimMontage* Montage, bool bInterrupted)
+ void UPlayMontageBlendInSettingsCallbackProxy::OnMontageBlendingOut(UAnimMontage* Montage, bool bInterrupted)
  {
  	if (bInterrupted)
  	{
@@ -120,7 +113,7 @@
  	}
  }
 
- void UPlayMontageBlendSettingsCallbackProxy::OnMontageEnded(UAnimMontage* Montage, bool bInterrupted)
+ void UPlayMontageBlendInSettingsCallbackProxy::OnMontageEnded(UAnimMontage* Montage, bool bInterrupted)
  {
  	if (!bInterrupted)
  	{
@@ -131,25 +124,21 @@
  		OnInterrupted.Broadcast(NAME_None);
  	}
 
- 	RestorePrevMontage();
- 	
  	UnbindDelegates();
  }
 
- void UPlayMontageBlendSettingsCallbackProxy::UnbindDelegates()
+ void UPlayMontageBlendInSettingsCallbackProxy::UnbindDelegates()
  {
  	if (UAnimInstance* AnimInstance = AnimInstancePtr.Get())
  	{
- 		AnimInstance->OnPlayMontageNotifyBegin.RemoveDynamic(this, &UPlayMontageBlendSettingsCallbackProxy::OnNotifyBeginReceived);
- 		AnimInstance->OnPlayMontageNotifyEnd.RemoveDynamic(this, &UPlayMontageBlendSettingsCallbackProxy::OnNotifyEndReceived);
+ 		AnimInstance->OnPlayMontageNotifyBegin.RemoveDynamic(this, &UPlayMontageBlendInSettingsCallbackProxy::OnNotifyBeginReceived);
+ 		AnimInstance->OnPlayMontageNotifyEnd.RemoveDynamic(this, &UPlayMontageBlendInSettingsCallbackProxy::OnNotifyEndReceived);
  	}
  }
 
- void UPlayMontageBlendSettingsCallbackProxy::BeginDestroy()
+ void UPlayMontageBlendInSettingsCallbackProxy::BeginDestroy()
  {
  	UnbindDelegates();
-
- 	RestorePrevMontage();
 
  	Super::BeginDestroy();
  }
