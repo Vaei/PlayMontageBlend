@@ -10,17 +10,17 @@ You MUST also [use this plugin](https://github.com/Vaei/AbilitySystemFix) if you
 Here is an example function you can use to scale blend in and out time by playrate:
 
 ```cpp
-	UFUNCTION(BlueprintPure, Category="Ability")
-	static void GetBlendSettings(const UAnimMontage* Montage, float RateScale, FMontageBlendSettings& BlendIn, FAlphaBlend& BlendOut)
-	{
-		if (!Montage || RateScale <= 0.f) {	return;	}
-		
-		BlendIn = { Montage->GetBlendInArgs() };
-		BlendIn.Blend.BlendTime /= RateScale;
-		BlendIn.BlendProfile = Montage->BlendProfileIn;
-		BlendIn.BlendMode = Montage->BlendModeIn;
+UFUNCTION(BlueprintPure, Category="Ability")
+static void GetBlendSettings(const UAnimMontage* Montage, float RateScale, FMontageBlendSettings& BlendIn, FAlphaBlend& BlendOut)
+{
+	if (!Montage || RateScale <= 0.f) {	return;	}
+	
+	BlendIn = { Montage->GetBlendInArgs() };
+	BlendIn.Blend.BlendTime /= RateScale;
+	BlendIn.BlendProfile = Montage->BlendProfileIn;
+	BlendIn.BlendMode = Montage->BlendModeIn;
 
-		BlendOut = { Montage->BlendOut };
-		BlendOut.SetBlendTime(BlendOut.GetBlendTime() / RateScale);
-	}
+	BlendOut = { Montage->BlendOut };
+	BlendOut.SetBlendTime(BlendOut.GetBlendTime() / RateScale);
+}
   ```
