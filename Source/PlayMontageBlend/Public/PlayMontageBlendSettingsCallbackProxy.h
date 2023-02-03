@@ -32,9 +32,6 @@ class UPlayMontageBlendSettingsCallbackProxy : public UObject
 	UPROPERTY(BlueprintAssignable)
 	FOnMontageBlendPlayDelegate OnNotifyEnd;
 
-	UPROPERTY(BlueprintAssignable)
-	FOnMontageBlendPlayDelegate OnTaskComplete;
-
 	// Called to perform the query internally
 	UFUNCTION(BlueprintCallable, meta = (BlueprintInternalUseOnly = "true"))
 	static UPlayMontageBlendSettingsCallbackProxy* CreateProxyObjectForPlayMontage(
