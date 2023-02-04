@@ -14,6 +14,7 @@ public class PlayMontageBlend : ModuleRules
 			new string[]
 			{
 				"Core",
+				"GameplayTasks",
 			}
 			);
 		
@@ -21,7 +22,8 @@ public class PlayMontageBlend : ModuleRules
 			new string[]
 			{
 				"CoreUObject",
-				"Engine",
+				"Engine", 
+				"GameplayAbilities",
 			}
 			);
 	}
