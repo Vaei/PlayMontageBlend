@@ -6,7 +6,7 @@
 #include "Animation/AnimInstance.h"
 #include "AbilityTask_PlayMontageAndWaitBlendIn.generated.h"
 
-DECLARE_DYNAMIC_MULTICAST_DELEGATE(FMontageWaitSimpleDelegate);
+DECLARE_DYNAMIC_MULTICAST_DELEGATE(FMontageWaitSimpleBlendDelegate);
 
 /** Ability task to simply play a montage. Many games will want to make a modified version of this task that looks for game-specific events */
 UCLASS()
@@ -15,16 +15,16 @@ class PLAYMONTAGEBLEND_API UAbilityTask_PlayMontageAndWaitBlendIn : public UAbil
 	GENERATED_UCLASS_BODY()
 
 	UPROPERTY(BlueprintAssignable)
-	FMontageWaitSimpleDelegate	OnCompleted;
+	FMontageWaitSimpleBlendDelegate	OnCompleted;
 
 	UPROPERTY(BlueprintAssignable)
-	FMontageWaitSimpleDelegate	OnBlendOut;
+	FMontageWaitSimpleBlendDelegate	OnBlendOut;
 
 	UPROPERTY(BlueprintAssignable)
-	FMontageWaitSimpleDelegate	OnInterrupted;
+	FMontageWaitSimpleBlendDelegate	OnInterrupted;
 
 	UPROPERTY(BlueprintAssignable)
-	FMontageWaitSimpleDelegate	OnCancelled;
+	FMontageWaitSimpleBlendDelegate	OnCancelled;
 
 	UFUNCTION()
 	void OnMontageBlendingOut(UAnimMontage* Montage, bool bInterrupted);
