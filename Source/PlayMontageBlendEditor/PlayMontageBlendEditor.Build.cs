@@ -7,8 +7,6 @@ public class PlayMontageBlendEditor : ModuleRules
 	public PlayMontageBlendEditor(ReadOnlyTargetRules Target) : base(Target)
 	{
 		PCHUsage = ModuleRules.PCHUsageMode.UseExplicitOrSharedPCHs;
-		IWYUSupport = IWYUSupport.Full;
-		// bUseUnity = false;
 		
 		PublicDependencyModuleNames.AddRange(
 			new string[]
