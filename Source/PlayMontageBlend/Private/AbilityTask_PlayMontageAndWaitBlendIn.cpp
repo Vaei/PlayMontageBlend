@@ -14,6 +14,9 @@ UAbilityTask_PlayMontageAndWaitBlendIn::UAbilityTask_PlayMontageAndWaitBlendIn(c
 {
 	Rate = 1.f;
 	bStopWhenAbilityEnds = true;
+
+	AnimRootMotionTranslationScale = 1.f;
+	StartTimeSeconds = 0.f;
 }
 
 void UAbilityTask_PlayMontageAndWaitBlendIn::OnMontageBlendingOut(UAnimMontage* Montage, bool bInterrupted)

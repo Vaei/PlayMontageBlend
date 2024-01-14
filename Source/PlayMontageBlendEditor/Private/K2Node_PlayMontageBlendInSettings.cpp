@@ -11,6 +11,8 @@
 #include "UObject/NameTypes.h"
 #include "UObject/ObjectPtr.h"
 
+#include UE_INLINE_GENERATED_CPP_BY_NAME(K2Node_PlayMontageBlendInSettings)
+
 #define LOCTEXT_NAMESPACE "K2Node"
 
 UK2Node_PlayMontageBlendInSettings::UK2Node_PlayMontageBlendInSettings(const FObjectInitializer& ObjectInitializer)
