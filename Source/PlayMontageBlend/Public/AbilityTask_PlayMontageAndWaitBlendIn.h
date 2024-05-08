@@ -30,7 +30,7 @@ class PLAYMONTAGEBLEND_API UAbilityTask_PlayMontageAndWaitBlendIn : public UAbil
 	void OnMontageBlendingOut(UAnimMontage* Montage, bool bInterrupted);
 
 	UFUNCTION()
-	void OnMontageInterrupted();
+	void OnGameplayAbilityCancelled();
 
 	UFUNCTION()
 	void OnMontageEnded(UAnimMontage* Montage, bool bInterrupted);

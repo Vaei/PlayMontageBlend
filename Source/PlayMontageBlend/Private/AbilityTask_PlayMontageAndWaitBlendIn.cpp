@@ -57,7 +57,7 @@ void UAbilityTask_PlayMontageAndWaitBlendIn::OnMontageBlendingOut(UAnimMontage* 
 	}
 }
 
-void UAbilityTask_PlayMontageAndWaitBlendIn::OnMontageInterrupted()
+void UAbilityTask_PlayMontageAndWaitBlendIn::OnGameplayAbilityCancelled()
 {
 	if (StopPlayingMontage())
 	{
@@ -122,7 +122,7 @@ void UAbilityTask_PlayMontageAndWaitBlendIn::Activate()
 					return;
 				}
 
-				InterruptedHandle = Ability->OnGameplayAbilityCancelled.AddUObject(this, &UAbilityTask_PlayMontageAndWaitBlendIn::OnMontageInterrupted);
+				InterruptedHandle = Ability->OnGameplayAbilityCancelled.AddUObject(this, &UAbilityTask_PlayMontageAndWaitBlendIn::OnGameplayAbilityCancelled);
 
 				BlendingOutDelegate.BindUObject(this, &UAbilityTask_PlayMontageAndWaitBlendIn::OnMontageBlendingOut);
 				AnimInstance->Montage_SetBlendingOutDelegate(BlendingOutDelegate, MontageToPlay);
